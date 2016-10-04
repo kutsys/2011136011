@@ -95,7 +95,7 @@ xterm*|rxvt*)
 esac
 
 # enable color support of ls and also add handy aliases
-# ls의 색상 지원을 가느앟게 하고 또한 유용한 별칭을 추가한다
+# ls의 색상 지원을 가능하게 하고 또한 유용한 별칭을 추가한다
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
     alias ls='ls --color=auto'
