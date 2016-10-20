@@ -19,6 +19,8 @@ int main(){
 	}
 	else{
 		while(1){
+			if(pid != 0) printf("running\n") 
+			else printf("non existed\n");
 			printf("command input K,Q,S,R :\n");
 			scanf("%c", &cmd);
 			if(cmd == 'Q'){
