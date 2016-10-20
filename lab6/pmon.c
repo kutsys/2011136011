@@ -15,46 +15,48 @@ int main(){
 		exit(1);
 	}
 	else if(pid == 0){
-		execl("/home/appleeji/lab6/ptest","ptest",NULL,(char*)0);
+		execl("/home/appleeji/2011136011/lab6/ptest","ptest",NULL,(char*)0);
 	}
 	else{
 		while(1){
-			if(pid != 0) printf("running\n") 
-			else printf("non existed\n");
+			if(pid != 0) printf("\nrunning\n");
+			else printf("\nnon existed\n");
 			printf("command input K,Q,S,R :\n");
 			scanf("%c", &cmd);
+			while(getchar() != '\n');	
 			if(cmd == 'Q'){
 				if(pid !=0) kill(pid,SIGKILL);	
 				 exit(1);
 			}
 			else if(cmd == 'K') {
 				if(pid == 0) continue;
-				printf("kill child\n");
+				printf("\nkill child\n");
 				kill(pid,SIGKILL);
 				pid = 0;
 			}
 			else if(cmd == 'S') {
-				if(pid) printf("already running\n");
+				if(pid) printf("\nalready running\n");
 				else {
-					printf("newly start\n");
+					printf("\nnewly start\n");
 					pid = fork();
-					if(pid == 0) execl("/home/appleeji/lab6/ptest","ptest",NULL,(char*)0);
+					if(pid == 0) execl("/home/appleeji/2011136011/lab6/ptest","ptest",NULL,(char*)0);
 				}
 			}	
 			else if(cmd == 'R') {
 				if(pid) {
-					printf("restart\n");
+					printf("\nrestart\n");
 					kill(pid,SIGKILL);	
 					pid = fork();
-					if(pid == 0) execl("/home/appleeji/lab6/ptest","ptest",NULL,(char*)0);	
+					if(pid == 0) execl("/home/appleeji/2011136011/lab6/ptest","ptest",NULL,(char*)0);	
 				}
 				else {
-					printf("newly started\n");
+					printf("\nnewly started\n");
 					pid = fork();
-					if(pid == 0) execl("/home/appleeji/lab6/ptest","ptest",NULL,(char*)0);	
+					if(pid == 0) execl("/home/appleeji/2011136011/lab6/ptest","ptest",NULL,(char*)0);	
 				}
 			}
-			else continue;
+			else printf("please input the correct command\n");
+
  
 			sleep(5);
 		}
