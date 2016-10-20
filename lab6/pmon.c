@@ -5,9 +5,7 @@
 #include <signal.h>
 int main(){
 	pid_t pid;
-	char * msg;
-	time_t rawtime;
-	struct tm *info;
+	char *path = "/home/appleeji/2011136011/lab6/ptest";
 	char cmd;	
 	pid = fork();
 	if(pid == -1){
@@ -15,7 +13,7 @@ int main(){
 		exit(1);
 	}
 	else if(pid == 0){
-		execl("/home/appleeji/2011136011/lab6/ptest","ptest",NULL,(char*)0);
+		execl(path,"ptest",NULL,(char*)0);
 	}
 	else{
 		while(1){
@@ -39,7 +37,7 @@ int main(){
 				else {
 					printf("\nnewly start\n");
 					pid = fork();
-					if(pid == 0) execl("/home/appleeji/2011136011/lab6/ptest","ptest",NULL,(char*)0);
+					if(pid == 0) execl(path,"ptest",NULL,(char*)0);
 				}
 			}	
 			else if(cmd == 'R') {
@@ -47,15 +45,15 @@ int main(){
 					printf("\nrestart\n");
 					kill(pid,SIGKILL);	
 					pid = fork();
-					if(pid == 0) execl("/home/appleeji/2011136011/lab6/ptest","ptest",NULL,(char*)0);	
+					if(pid == 0) execl(path,"ptest",NULL,(char*)0);	
 				}
 				else {
 					printf("\nnewly started\n");
 					pid = fork();
-					if(pid == 0) execl("/home/appleeji/2011136011/lab6/ptest","ptest",NULL,(char*)0);	
+					if(pid == 0) execl(path,"ptest",NULL,(char*)0);	
 				}
 			}
-			else printf("please input the correct command\n");
+			else printf("\nplease input the correct command\n");
 
  
 			sleep(5);
