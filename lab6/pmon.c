@@ -3,61 +3,80 @@
 #include <unistd.h>
 #include <time.h>
 #include <signal.h>
-int main(){
+#include <stdio_ext.h>
+
+//return ptest's pid
+pid_t getPtestPid(){
+	FILE *cmd;
+	char line[20];
 	pid_t pid;
-	char *path = "/home/appleeji/2011136011/lab6/ptest";
+	if((cmd = popen("pidof ptest", "r")) == NULL){
+		printf("popen error\n");
+	}
+	fgets(line,20,cmd);
+	pid = strtoul(line,NULL,10);	
+	pclose(cmd);
+	
+	return pid;
+}
+
+void ptestMon(int sig){
+	pid_t pid = getPtestPid();
+	if(pid) printf("\nrunning\n");
+	else printf("\nthere is no process\n");
+	fflush(stdout);
+	alarm(3);
+}
+
+int main(){
+	pid_t pid = 0;
 	char cmd;	
-	pid = fork();
-	if(pid == -1){
-		printf("error ouccred during fork()\n");
-		exit(1);
-	}
-	else if(pid == 0){
-		execl(path,"ptest",NULL,(char*)0);
-	}
-	else{
-		while(1){
-			if(pid != 0) printf("\nrunning\n");
-			else printf("\nnon existed\n");
-			printf("command input K,Q,S,R :\n");
-			scanf("%c", &cmd);
-			while(getchar() != '\n');	
-			if(cmd == 'Q'){
-				if(pid !=0) kill(pid,SIGKILL);	
-				 exit(1);
+	while(1){
+		(void) signal(SIGALRM, ptestMon);
+		alarm(3);
+
+		printf("command input K,Q,S,R :\n");
+		scanf("%c", &cmd);
+		while(getchar() != '\n');
+		//__fpurge(stdin);	
+		if(cmd == 'Q'){
+			 exit(1);
+		}
+		else if(cmd == 'K') {
+			pid = getPtestPid();
+			if(pid == 0) {
+				printf("there is no process\n");	
+				continue;
 			}
-			else if(cmd == 'K') {
-				if(pid == 0) continue;
-				printf("\nkill child\n");
+			else {
+				printf("\nkill child\n");	
 				kill(pid,SIGKILL);
 				pid = 0;
 			}
-			else if(cmd == 'S') {
-				if(pid) printf("\nalready running\n");
-				else {
-					printf("\nnewly start\n");
-					pid = fork();
-					if(pid == 0) execl(path,"ptest",NULL,(char*)0);
-				}
-			}	
-			else if(cmd == 'R') {
-				if(pid) {
-					printf("\nrestart\n");
-					kill(pid,SIGKILL);	
-					pid = fork();
-					if(pid == 0) execl(path,"ptest",NULL,(char*)0);	
-				}
-				else {
-					printf("\nnewly started\n");
-					pid = fork();
-					if(pid == 0) execl(path,"ptest",NULL,(char*)0);	
-				}
-			}
-			else printf("\nplease input the correct command\n");
-
- 
-			sleep(5);
 		}
+		else if(cmd == 'S') {
+			pid = getPtestPid();
+			if(pid) printf("\nalready running\n");
+			else {
+				printf("\nnewly start\n");
+				system("gnome-terminal --command \"./ptest\"");
+			}
+		}	
+		else if(cmd == 'R') {
+			pid = getPtestPid();
+			if(pid) {
+				printf("\nrestart\n");
+				kill(pid,SIGKILL);	
+				system("gnome-terminal --command \"./ptest\"");	
+			}
+			else {
+				printf("\nnewly started\n");
+				system("gnome-terminal --command \"./ptest\"");
+			}
+		}
+		else printf("\nplease input the correct command\n");
+ 
+		sleep(2);
 	}
-
 }
+
