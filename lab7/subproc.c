@@ -12,8 +12,8 @@ int main(){
 	int count=0;
 	
 	while(1){	
-		srand(time(NULL));
-		r = rand()%20;
+		srand(getpid()+count);
+		r = rand()%10;
 		_time = time(NULL);
 		t = localtime(&_time);
 		printf("process_num : %d  time : %d년%d월%d일 %d시 %d분 %d초   call count = %d\n",getpid(),t->tm_year+1900,t->tm_mon+1,t->tm_mday,t->tm_hour,t->tm_min,t->tm_sec, ++count);
