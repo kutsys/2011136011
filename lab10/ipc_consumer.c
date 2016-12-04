@@ -8,8 +8,7 @@
 
 
 #define BUF_SIZE 11
-#define FIFO_P "./fifo_p"
-#define FIFO_C "./fifo_c"
+#define FIFO "./fifo"
 
 int main(){ 
 	char buffer_w[BUF_SIZE];
@@ -30,8 +29,8 @@ int main(){
 	memset(buffer_r, '\0', BUF_SIZE);
 
 
-	if((fp_r = open(FIFO_P, O_RDWR|O_NONBLOCK)) < 0){
-		fprintf(stderr, "p open error\n");
+	if((fp_r = open(FIFO, O_RDONLY)) < 0){
+		fprintf(stderr, "c_r open error\n");
 		exit(EXIT_FAILURE);
 	}
 /*
@@ -46,25 +45,26 @@ int main(){
 	strcpy(pid_buffer, buffer_r);	
 	printf("consumer : receving data %s, %s\n", snumber, pid_buffer);
 
-	close(fp_r);	
+	close(fp_r);
+/*	
 	if(access(FIFO_C, F_OK) == -1){
-		res = mkfifo(FIFO_C, 0666);
+		res = mkfifo(FIFO_C, 0777);
 		if(res != 0){
 			fprintf(stderr, "consumer 피포파일 생성 불가 %s\n", FIFO_C);
 			exit(EXIT_FAILURE);
 		}
 	}	
-	
-	if((fp_w = open(FIFO_C, O_RDWR | O_NONBLOCK))<0){
-		fprintf(stderr, "c open error\n");
+*/	
+	if((fp_w = open(FIFO, O_WRONLY | O_NONBLOCK))<0){
+		fprintf(stderr, "c_w open error\n");
 		exit(EXIT_FAILURE);
 	}
-
+	
 	sprintf(pid_buffer, "%d", pid);	
 	write(fp_w, name, BUF_SIZE);
 	write(fp_w, pid_buffer, BUF_SIZE); 	
-
 	close(fp_w);
+	sleep(2);
 	exit(EXIT_SUCCESS);
 }
 

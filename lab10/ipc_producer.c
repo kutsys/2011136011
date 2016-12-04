@@ -6,8 +6,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#define FIFO_P "./fifo_p"
-#define FIFO_C "./fifo_c"
+#define FIFO "./fifo"
 #define BUF_SIZE 11
 
 int main(){
@@ -19,7 +18,6 @@ int main(){
 	char buffer_r[BUF_SIZE];
 	char buffer_w[BUF_SIZE];
 	
-//	char buffer[BUF_SIZE];
 
 	pid_t fork_result ;
 	int  pid = (int)getpid();
@@ -28,26 +26,22 @@ int main(){
 
 	sprintf(pid_buffer, "%d", pid);
 
-
-	if(access(FIFO_P, F_OK) == -1){
-		res = mkfifo(FIFO_P, 0666);
+	if(access(FIFO, F_OK) == -1){
+		res = mkfifo(FIFO, 0777);
 		if(res != 0){
-			fprintf(stderr, "producer 피포파일 생성 불가 %s\n",FIFO_P);
+			fprintf(stderr, "producer 피포파일 생성 불가 %s\n",FIFO);
 			exit(EXIT_FAILURE);
 		}	
 	}
+	
+	usleep(500);
 	// 1은 쓰기용
-	if((fp_w = open(FIFO_P, O_RDWR | O_NONBLOCK )) < 0 ){
-		fprintf(stderr, "p dopen error\n");
+	if((fp_w = open(FIFO, O_RDWR | O_NONBLOCK )) < 0 ){
+		fprintf(stderr, "p_w dopen error\n");
 		exit(EXIT_FAILURE);
 	}
-
 	memset(buffer_w, '\0', BUF_SIZE); 
 	memset(buffer_r, '\0', BUF_SIZE);
-
-	//버퍼의 값을 NULL로 초기화 한다
-//	memset(buffer, '\0', sizeof(buffer));	
-
 
 	fork_result = fork();
 	if(fork_result == (pid_t)-1) {
@@ -63,9 +57,11 @@ int main(){
 		write(fp_w, snumber, BUF_SIZE);
 		write(fp_w, pid_buffer, BUF_SIZE);
 	}
-		close(fp_w);
-	if((fp_r = open(FIFO_C, O_RDWR))<0){
-		fprintf(stderr, "c open error\n");
+	close(fp_w);
+	
+	usleep(500);
+	if((fp_r = open(FIFO, O_RDONLY))<0){
+		fprintf(stderr, "p_r open error\n");
 		exit(EXIT_FAILURE);
 	}
 
