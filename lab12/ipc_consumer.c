@@ -29,13 +29,11 @@ int main(){
 		fprintf(stderr, "msgget failed with error : %d\n", errno);
 		exit(EXIT_FAILURE);
 	}
-	if(msgrcv(msgid_ptoc, (void*)&some_data,2*BUF_SIZE,1,0) == -1){
+	if(msgrcv(msgid_ptoc, (void*)&some_data_receive,2*BUF_SIZE,1,0) == -1){
 		fprintf(stderr, "msgsnd failed\n");
 		exit(EXIT_FAILURE);
 	}
-	strcpy(some_data_receive.data,some_data.data);
-	strcpy(some_data_receive.pid,some_data.pid);
-	printf("consumer : receiving data %s, %s\n", some_data_receive.data, some_data_recive.pid);
+	printf("consumer : receiving data %s, %s\n", some_data_receive.data, some_data_receive.pid);
 
 	//receive (p to c)
 	msgid_ctop = msgget((key_t)1235, 0666 | IPC_CREAT);	
@@ -43,13 +41,15 @@ int main(){
 		fprintf(stderr, "msgget failed with error : %d\n", errno);
 		exit(EXIT_FAILURE);
 	}
-	if(msgrcv(msgid_ctop, (void*)&some_data,2*BUF_SIZE,0) == -1){
+
+	some_data.my_msg_type = 1;
+	strcpy(some_data.data, "김민섭");
+	strcpy(some_data.pid, pid_buffer);	
+	
+	if(msgsnd(msgid_ctop, (void*)&some_data,2*BUF_SIZE,0) == -1){
 		fprintf(stderr, "msgsnd failed\n");
 		exit(EXIT_FAILURE);
 	}
-	some_data.my_msg_type = 2;
-	strcpy(some_data.data, "name");
-	strcpy(some_data.pid, pid_buffer);	
 	exit(EXIT_SUCCESS);
 
 }

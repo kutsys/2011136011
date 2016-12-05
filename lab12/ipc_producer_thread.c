@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <sys/msg.h>
+#include <pthread.h>
 
 #define BUF_SIZE 11
 
@@ -13,27 +14,12 @@ typedef struct {
 	char pid[BUF_SIZE];
 }my_msg_st;
 
-int main(){
+void * thread_send(){
 	int msgid_ptoc;
-	int msgid_ctop;
-	my_msg_st some_data;
-	my_msg_st some_data_receive;
 	char pid_buffer[BUF_SIZE];	
-	char buffer[BUF_SIZE];
-	pid_t fork_result;
-
+	my_msg_st some_data;
 	sprintf(pid_buffer, "%d", (int)getpid());
-	
-	fork_result = fork();
-	if(fork_result == (pid_t)-1){
-		fprintf(stderr, "fork failure");	
-		exit(EXIT_FAILURE);
-	}
-	else if(fork_result == 0){
-		(void)execl("ipc_consumer","ipc_consumer",NULL,NULL);
-		exit(EXIT_FAILURE);
-	}
-	//send (p to c)
+
 	msgid_ptoc = msgget((key_t)1234, 0666 | IPC_CREAT);	
 	if(msgid_ptoc == -1){
 		fprintf(stderr, "msgget failed with error : %d\n", errno);
@@ -49,7 +35,12 @@ int main(){
 		exit(EXIT_FAILURE);
 	}
 
-	//receive (c to p)
+
+};
+void * thread_receive(){
+	int msgid_ctop;
+	my_msg_st some_data_receive;
+
 	msgid_ctop = msgget((key_t)1235, 0666 | IPC_CREAT);	
 	if(msgid_ctop == -1){
 		fprintf(stderr, "msgget failed with error : %d\n", errno);
@@ -60,8 +51,51 @@ int main(){
 		exit(EXIT_FAILURE);
 	}
 	printf("producer : receving data %s, %s\n", some_data_receive.data, some_data_receive.pid);
+	
+
+};
+int main(){
+	int i;
+	int res;
+	pthread_t sender, receiver;
+	void * thread_result;
+	pid_t fork_result;
+
+	
+	fork_result = fork();
+	if(fork_result == (pid_t)-1){
+		fprintf(stderr, "fork failure");	
+		exit(EXIT_FAILURE);
+	}
+	else if(fork_result == 0){
+		(void)execl("ipc_consumer","ipc_consumer",NULL,NULL);
+		exit(EXIT_FAILURE);
+	}
+
+	res = pthread_create(&sender,NULL,thread_send, NULL);
+	if(res != 0){
+		perror("thread sender creation failed");	
+		exit(EXIT_FAILURE);	
+	}
+	res = pthread_create(&receiver,NULL,thread_receive, NULL);
+	if(res != 0){
+		perror("thread receiver creation failed");	
+		exit(EXIT_FAILURE);	
+	}
+
+	res = pthread_join(sender, &thread_result);
+	if(res == 0){
+		printf("picked up a p_sender\n");
+	}
+	else{
+		printf("sender join failed\n");
+	}
+	res = pthread_join(receiver, &thread_result);
+	if(res == 0){
+		printf("picked up a p_receiver\n");
+	}
+	else{
+		printf("receiver join failed\n");
+	}
 	exit(EXIT_SUCCESS);
-
-
-
 }
