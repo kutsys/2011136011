@@ -20,46 +20,36 @@ int main(){
 	my_msg_st some_data_receive;
 	char pid_buffer[BUF_SIZE];	
 	char buffer[BUF_SIZE];
-	pid_t fork_result;
 
 	sprintf(pid_buffer, "%d", (int)getpid());
 	
-	fork_result = fork();
-	if(fork_result == (pid_t)-1){
-		fprintf(stderr, "fork failure");	
-		exit(EXIT_FAILURE);
-	}
-	else if(fork_result == 0){
-		(void)execl("ipc_consumer","ipc_consumer",NULL,NULL);
-		exit(EXIT_FAILURE);
-	}
-	//send (p to c)
+	//receive (p to c)
 	msgid_ptoc = msgget((key_t)1234, 0666 | IPC_CREAT);	
 	if(msgid_ptoc == -1){
 		fprintf(stderr, "msgget failed with error : %d\n", errno);
 		exit(EXIT_FAILURE);
 	}
-	some_data.my_msg_type = 1;
-	strcpy(some_data.data,"2011136011");
-	strcpy(some_data.pid,pid_buffer);
-	if(msgsnd(msgid_ptoc, (void*)&some_data,2*BUF_SIZE,0) == -1){
+	if(msgrcv(msgid_ptoc, (void*)&some_data,2*BUF_SIZE,1,0) == -1){
 		fprintf(stderr, "msgsnd failed\n");
 		exit(EXIT_FAILURE);
 	}
+	strcpy(some_data_receive.data,some_data.data);
+	strcpy(some_data_receive.pid,some_data.pid);
+	printf("consumer : receiving data %s, %s\n", some_data_receive.data, some_data_recive.pid);
 
-	//receive (c to p)
+	//receive (p to c)
 	msgid_ctop = msgget((key_t)1235, 0666 | IPC_CREAT);	
 	if(msgid_ctop == -1){
 		fprintf(stderr, "msgget failed with error : %d\n", errno);
 		exit(EXIT_FAILURE);
 	}
-	if(msgrcv(msgid_ctop, (void*)&some_data_receive,2*BUF_SIZE,2,0) == -1){
+	if(msgrcv(msgid_ctop, (void*)&some_data,2*BUF_SIZE,0) == -1){
 		fprintf(stderr, "msgsnd failed\n");
 		exit(EXIT_FAILURE);
 	}
-	printf("producer : receving data %s, %s\n", some_data_receive.data, some_data_receive.pid);
+	some_data.my_msg_type = 2;
+	strcpy(some_data.data, "name");
+	strcpy(some_data.pid, pid_buffer);	
 	exit(EXIT_SUCCESS);
-
-
 
 }
