@@ -29,7 +29,7 @@ int main(int argc, char * argv[]){
 	sem = sem_open("namesemaphore",O_CREAT, 0644,0);
 
 	int pid;
-	shmid = shmget((key_t)1234, sizeof(shared_use_st), 0666 | IPC_CREAT);
+	shmid = shmget((key_t)1235, sizeof(shared_use_st), 0666 | IPC_CREAT);
 
 	if( shmid == -1){
 		fprintf(stderr, "shmget failure");

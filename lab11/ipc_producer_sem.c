@@ -33,7 +33,7 @@ int main(){
 	int pid = (int)getpid();
 	sprintf(pid_c, "%d", pid); 
 	//쉐어드 메모리 생성 키캆1234, 사이즈구조체크기, 권한,생성후존재시값반환
-	shmid = shmget((key_t)1234, sizeof(shared_use_st), 0666 | IPC_CREAT);
+	shmid = shmget((key_t)1235, sizeof(shared_use_st), 0666 | IPC_CREAT);
 	//sprintf(shmid_c, "%d", shmid);
 	
 	if( shmid == -1){
